@@ -12,11 +12,15 @@ Vue.component('app-header', {
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
           </li>
+           <li class="nav-item active">
+            <router-link class="nav-link" to="/upload">Upload</router-link>
+          </li>
         </ul>
       </div>
     </nav>
     `
 });
+
 
 Vue.component('app-footer', {
     template: `
@@ -40,26 +44,80 @@ const Home = Vue.component('home', {
     }
 });
 
-const NotFound = Vue.component('not-found', {
+const Upload = Vue.component('upload-form', {
     template: `
     <div>
-        <h1>404 - Not Found</h1>
+        <form @submit.prevent="uploadPhoto" id="uploadForm"  method="POST" enctype="multipart/form-data" >
+            <div v-if="flashMessage">
+                <div v-if="error" class="alert alert-danger">
+                    <li v-for="msg in message">{{ msg }}</li>
+                </div>
+            <div v-else class="alert alert-success" v-for="msg in message" v-text="msg"></div>
+    </div>
+            <h1>Upload Form</h1>
+            <label>Description:</label><br>
+            <div class="form-group">
+                <textarea class="form-control" name = "description"></textarea><br>
+            </div>
+            <label>Photo Upload</label><br/>
+            <input id="photo" type="file" name='photo'/><br> <br>
+            <button @click="flashMessage = true" type="submit" name="submit" class="btn btn-primary">Submit</button> 
+       </form>
+       <br> 
     </div>
     `,
+    methods: {
+        uploadPhoto: function(){
+            let uploadForm = document.getElementById('uploadForm');
+            let form_data = new FormData(uploadForm);
+            let prop = "";
+            let self = this;
+            self.message = []
+            
+            fetch("/api/upload", {
+                method: 'POST',
+                body: form_data,
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+            }).then(function(response){
+                return response.json();
+            }).then(function (jsonResponse) {
+                // display a success message
+                console.log(jsonResponse);
+                for (res in jsonResponse) {
+                    prop = res;
+                }
+                if (prop == "errors") {
+                    self.error = true;
+                    for (msg in jsonResponse.errors) {
+                        self.message.push(jsonResponse.errors[msg]["message"]);
+                    }
+                } else {
+                    self.error = false;
+                    self.message.push(jsonResponse['message']);
+                }
+             })
+             .catch(function (error) {
+                console.log(error);
+    });
+        }
+    },
     data: function () {
-        return {}
-    }
-})
+        return {
+            flashMessage: false,
+            message: [],
+            error: false
+        }
+     }
+});
 
 // Define Routes
 const router = new VueRouter({
-    mode: 'history',
     routes: [
-        {path: "/", component: Home},
-        // Put other routes here
-
-        // This is a catch all route in case none of the above matches
-        {path: "*", component: NotFound}
+        { path: "/", component: Home },
+        { path: "/upload", component: Upload}
     ]
 });
 

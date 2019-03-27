@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Attempt at Lab 7">
+    <meta name="author" content="Gawayne Lawton">
 
     <title>INFO3180 Lab 7</title>
 
@@ -27,6 +27,7 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vue-router.js') }}"></script>
+    <script>const token = "{{ csrf_token() }}"; </script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block js %} {% endblock%}
   </body>
